@@ -1,4 +1,4 @@
-## hydra工具使用
+## hydra
 
 hydra是密码爆破工具，集成在kali中，使用`hydra -h`可以查看命令参数。
 
@@ -80,4 +80,12 @@ Examples:
   # 指定用户
   hydra -l root -P password.txt ssh://10.0.0.128
 ```
+
+
+
+## xhydra
+
+xhydra是hydra可视化版工具，可以在kali的命令行中执行`xhydra`命令打开面板。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210815144849.png)
 
