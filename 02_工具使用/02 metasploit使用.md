@@ -1,4 +1,4 @@
-## metasploit
+# metasploit
 
 在kali中执行`msfconsole`即可使用。
 
@@ -8,7 +8,74 @@
 
 
 
-## msf模块
+# Nmap与Metasploit
+
+Metasploit可以将渗透测试信息存入数据库中并可以共享。
+
+每次msfconsole启动时，会自动连接到数据库，使用`db_status`可以查看与数据库连接状态。
+
+```
+msf6 > db_status 
+[*] postgresql selected, no connection
+```
+
+在kali中新开终端查看postgresql服务状态，首次使用postgresql需要启动服务，并建议新建用户。
+
+```bash
+$ service postgresql status
+
+● postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (/lib/systemd/system/postgresql.service; disabled; vendor preset: disabled)
+     Active: inactive (dead)
+
+$ sudo service start postgresql
+
+$ service postgresql status    
+● postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (/lib/systemd/system/postgresql.service; disabled; vendor preset: disabled)
+     Active: active (exited) since Mon 2021-08-16 05:49:15 EDT; 10min ago
+    Process: 9017 ExecStart=/bin/true (code=exited, status=0/SUCCESS)
+   Main PID: 9017 (code=exited, status=0/SUCCESS)
+        CPU: 1ms
+
+# 登录
+$ sudo -u postgres psql
+psql (13.2 (Debian 13.2-1))
+Type "help" for help.
+
+postgres=# CREATE USER admin WITH PASSWORD '1122';
+CREATE ROLE
+postgres=# CREATE DATABASE msf OWNER admin;
+CREATE DATABASE
+postgres=# 
+```
+
+```
+msf6 > db_connect admin:1122@127.0.0.1/msf
+
+msf6 > db_status
+[*] Connected to msf. Connection type: postgresql. Connection name: OrKJCtgy.
+```
+
+可以使用`db_connect`来连接数据库，因此也可以连接其他数据库查看漏洞信息。
+
+```
+msf6 > db_connect admin:1122@127.0.0.1/msf
+Connected to Postgres data service: 127.0.0.1/msf
+```
+
+nmap很好的与metasploit集成在一起，可以方便的在Metasploit终端中使用`db_map`。
+
+```
+msf6 > db_nmap
+[*] Usage: db_nmap [--save | [--help | -h]] [nmap options]
+```
+
+
+
+# msf模块
+
+msf6中共有7个模块，在`/usr/share/metasploit-framework/modules`目录下
 
 ```bash
 ┌──(huan㉿kali)-[/usr/share/metasploit-framework/modules]
@@ -23,9 +90,7 @@ drwxr-xr-x  5 root root 4096 Aug 15 01:51 payloads
 drwxr-xr-x 14 root root 4096 Aug 15 01:51 post
 ```
 
-msf6中共有7个模块，其中
-
-### auxiliary
+## auxiliary
 
 负责信息收集、指纹识别、漏洞探测、口令破解等功能
 
@@ -49,11 +114,11 @@ total 56
 
 在TCP/IP网络环境中，一台主机在发送数据帧前需要使用ARP（Address Resolution Protocol，地址解析协议）将目标IP地址转换成MAC地址，这个转换过程是通过发送一个ARP请求完成的。
 
-#### ARP扫描示例
+### ARP扫描示例
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210816161513.png)
 
-#### 查点工具
+### 查点工具
 
 在Metasploit的Scanner辅助模块中，有很多用于服务扫描和查点的工具，这些工具通常以`[serivce_name]_version`和`[service_nam]_login`命名。
 
@@ -62,43 +127,84 @@ total 56
 
 > 并非所有的模块都按照上述规范命名。
 
-#### 代理工具
+### 代理工具
 
 metasploit提供了`open_proxy`模块，能够更加方便地获取免费的HTTP代理服务器地址，用于隐藏真实的IP地址。
 
 > 由于许多代理服务器安全性无法得到保障，请确保没有重要的私密信息通过代理发送。
 
+### wmap
 
+Metasploit中内置的Web扫描器，允许用户使用和配置Metasploit中的辅助模块，对网站进行集中扫描。
 
-### encoders
+```
+msf6 > load wmap
+
+.-.-.-..-.-.-..---..---.
+| | | || | | || | || |-'
+`-----'`-'-'-'`-^-'`-'
+[WMAP 1.5.1] ===  et [  ] metasploit.com 2012
+[*] Successfully loaded plugin: wmap
+
+msf6 > help
+
+wmap Commands
+=============
+
+    Command       Description
+    -------       -----------
+    wmap_modules  Manage wmap modules
+    wmap_nodes    Manage nodes
+    wmap_run      Test targets
+    wmap_sites    Manage sites
+    wmap_targets  Manage targets
+    wmap_vulns    Display web vulns
+    ..........
+```
+
+#### 扫描步骤
+
+1. 通过命令添加要扫描的网站
+2. 将添加的网站作为扫描目标
+3. 查看哪些模块将会在扫描中使用
+
+具体用法请参考[wmap官方链接](https://www.offensive-security.com/metasploit-unleashed/wmap-web-scanner/)。
+
+> Web漏洞扫描器极大的提高渗透测试人员的效率，但是，由于对某些漏洞比如信息泄露、加密机制缺陷等漏洞无法探测，且还存在误报和漏报的问题（假阳性、假阴性），对探测到的漏洞，仍然需要手工探测来真正确定。
+
+## encoders
 
 对payload进行加密，绕过杀软的功能模块。
 
-### evasion
+## evasion
 
 绕过杀软的功能模块。
 
-### exploits
+## exploits
 
 漏洞利用模块，对已经扫描和收集到的目标的漏洞进行利用（有可能会失败）的模块。
 
-### nops
+## nops
 
 提高payload稳定性及维持大小，空指令相关。
 
-### payloads
+## payloads
 
 exploits执行成功后，在目标系统真正执行的代码或指令等操作。
 
-### post
+## post
 
 后期渗透模块，执行一些后渗透操作，比如内网扫描和攻击、登录其他服务器、数据库等资产。
 
 
 
-## msf简单使用步骤
 
-### 漏洞扫描
+
+
+
+# msf简单使用步骤
+
+## 漏洞扫描
 
 1. 使用search命令，搜索可以用的模块。这里可以看到Name前面分为`auxiliary`和`exploit`。
 
@@ -123,34 +229,9 @@ exploits执行成功后，在目标系统真正执行的代码或指令等操作
 
 
 
-### 漏洞利用
+## 漏洞利用
 
 当我们发现目标存在相应的漏洞时，利用对应exploit模块即可进行攻击。
 
 
-
-## Nmap与Metasploit
-
-Metasploit可以将渗透测试信息存入数据库中并可以共享。
-
-每次msfconsole启动时，会自动连接到数据库，使用`db_status`可以查看与数据库连接状态。
-
-```
-msf6 > db_status
-[*] postgresql selected, no connection
-```
-
-> emmm，这里还没有设置，因此显示是`no connection`
-
-可以使用`db_connect`来连接数据库，因此也可以连接其他数据库查看漏洞信息。
-
-```
-msf6 > db_connect
-```
-
-nmap很好的与metasploit集成在一起，可以方便的在Metasploit终端中使用`db_map`。
-
-```
-msf6 > db_nmap
-```
 
