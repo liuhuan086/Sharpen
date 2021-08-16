@@ -146,37 +146,11 @@ msf6 > db_status
 
 ```
 msf6 > db_connect
-[-] A URL or saved data service name is required.
+```
 
-   USAGE:
-      * Postgres Data Service:
-          db_connect <user:[pass]>@<host:[port]>/<database>
-        Examples:
-          db_connect user@metasploit3
-          db_connect user:pass@192.168.0.2/metasploit3
-          db_connect user:pass@192.168.0.2:1500/metasploit3
-          db_connect -y [path/to/database.yml]
- 
-      * HTTP Data Service:
-          db_connect [options] <http|https>://<host:[port]>
-        Examples:
-          db_connect http://localhost:8080
-          db_connect http://my-super-msf-data.service.com
-          db_connect -c ~/cert.pem -t 6a7a74c1a5003802c955ead1bbddd4ab1b05a7f2940b4732d34bfc555bc6e1c5d7611a497b29e8f0 https://localhost:8080
-        NOTE: You must be connected to a Postgres data service in order to successfully connect to a HTTP data service.
- 
-      Persisting Connections:
-        db_connect --name <name to save connection as> [options] <address>
-      Examples:
-        Saving:     db_connect --name LA-server http://123.123.123.45:1234
-        Connecting: db_connect LA-server
- 
-   OPTIONS:
-       -l,--list-services List the available data services that have been previously saved.
-       -y,--yaml          Connect to the data service specified in the provided database.yml file.
-       -n,--name          Name used to store the connection. Providing an existing name will overwrite the settings for that connection.
-       -c,--cert          Certificate file matching the remote data server's certificate. Needed when using self-signed SSL cert.
-       -t,--token         The API token used to authenticate to the remote data service.
-       --skip-verify      Skip validating authenticity of server's certificate (NOT RECOMMENDED).
+nmap很好的与metasploit集成在一起，可以方便的在Metasploit终端中使用`db_map`。
+
+```
+msf6 > db_nmap
 ```
 
