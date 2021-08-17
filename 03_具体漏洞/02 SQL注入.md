@@ -34,7 +34,13 @@ WAITFOR DELAY '0:0:5'
 select 1 WAITFOR DELAY '0:0:5'
 ```
 
+这里是在centos7上通过docker部署的SQL Server
 
+```
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Qwer1234" -p 1433:1433 --name ssql  -d mcr.microsoft.com/mssql/server:2017-latest
+```
+
+通过工具或配置代码，即可连接。
 
 ## 判断注入点
 
