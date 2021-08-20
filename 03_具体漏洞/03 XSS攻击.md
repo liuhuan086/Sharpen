@@ -55,3 +55,46 @@ DOM型XSS其实是一种特殊类型的反射型XSS，它是基于DOM文档对�
 
 在网站页面中有许多页面的元素，当页面到达浏览器时浏览器会为页面创建一个顶级的Document object文档对象，接着生成各个子文档对象，每个页面元素对应一个文档对象，每个文档对象包含属性、方法和事件。可以通过**JS脚本**对文档对象进行编辑从而修改页面的元素。也就是说，客户端的脚本程序可以通过DOM来动态修改页面内容，从客户端获取DOM中的数据并在本地执行。基于这个特性，就可以利用**JS脚本**来实现XSS漏洞的利用。
 
+#### 靶机源码
+
+```html
+<html>
+<head>
+	 <meta charset="UTF-8">
+	 <title>留言板</title>
+
+	<script>
+		var pos = document.URL.indexOf("name=")+5;
+		document.write(document.URL.substring(pos,document.URL.length));
+	</script>
+
+</head>
+<body>
+<br>
+这是一个dom xss测试
+<body>
+</html>
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210820225842.png)
+
+可以看到`?name=`后面的内容是我们可以控制和修改的
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210820225927.png)
+
+构造攻击语句并执行
+
+```
+http://192.168.50.75/target_sys.com/xss/xss03.php?name=<script>alert("hacker");</script>
+```
+
+发现在目前的chrome和edge中无法执行成功。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210820231715.png)
+
+找比较远古的ie浏览器来进行尝试，将浏览器中的`启用xss`筛选器禁用，则可以成功构造xss攻击。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210820232559.png)
+
+
+
