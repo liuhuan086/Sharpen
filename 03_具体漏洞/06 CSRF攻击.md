@@ -41,3 +41,38 @@
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210823230752.png)
 
+为什么该HTML文件就能执行成功呢？我们一条一条的查看它的代码
+
+```
+  <script>history.pushState('', '', '/')</script>
+```
+
+> h5中提供了不修改页面内容只修改地址栏的api，pushState(添加浏览历史)
+>
+> pushState方法接受三个参数，依次为：
+>
+> state：一个与指定网址相关的状态对象，popstate事件触发时，该对象会传入回调函数。如果不需要这个对象，此处可以填null。可用它来传一些数据
+>
+> title：新页面的标题，但是所有浏览器目前都忽略这个值，因此这里可以填null。
+>
+> url：新的网址，必须与当前页面处在同一个域。浏览器的地址栏将显示这个网址。
+
+再接着看`form`表单，这里就是往目标网站发送表单数据。
+
+```
+    <form action="http://www.webtester.com/csrf/csrf01.php?c=update" method="POST">
+```
+
+继续看下面的代码，是一个`input`标签，最关键的地方在于，这里定义了`type=hidden`，也就是说这个`input`输入框对于用户来说是隐藏的，看不见的，当用户点击提交之后，就会在不知情的情况下修改密码。
+
+```
+      <input type="hidden" name="password" value="a123456" />
+```
+
+如果这里构造的是一个其他操作手段，比如银行转账，比如自动转发消息给列表中所有的好友，好友收到消息后再次转发，这就是之前发生过的[百度CSRF蠕虫攻击事件](https://blog.csdn.net/weixin_34409741/article/details/85166567)。
+
+
+
+## 防御
+
+防御手段请参考本文开头的参考链接。
