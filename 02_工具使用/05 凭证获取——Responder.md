@@ -1,10 +1,12 @@
-## Responder
+# Responder
+
+[**LLMNR与WPAD参考链接**](https://github.com/liuhuan086/Sharpen/blob/main/04_%E7%90%86%E8%AE%BA%E7%9F%A5%E8%AF%86/01%20LLMNR%E4%B8%8EWPAD%E5%8D%8F%E8%AE%AE.md)
 
 Responder是实现监听LLMNR（本地链路多播名称解析，Linux Local Multicast Resolution）协议和NBT-NS（网络基本输入输出协议域名服务，NetNIOS over TCP/IP Name Service）协议工具之一。
 
 Responder还利用了另外一个漏洞——WPAD（网络代理自动发现协议，Web Proxy Auto-Discovery Protocol）漏洞。基本工作原理是当浏览器（IE或者网络LAN设置）设置为自动检测配置时，受害者主机将试图从网络上获取配置文件。
 
-### Windows默认配置
+## Windows默认配置
 
 控制面板——网络和Internet——连接——局域网设置
 
@@ -12,7 +14,7 @@ Responder还利用了另外一个漏洞——WPAD（网络代理自动发现协�
 
 可以看到这里默认时自动检测设置。
 
-### 使用
+## 使用
 
 **Responder常用参数**
 
