@@ -55,7 +55,11 @@ sudo make install
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210824112153.png)
 
-然后开始攻击，[攻击教程参考：ettercap详细使用教程](https://blog.csdn.net/smli_ng/article/details/106133685)
+然后开始攻击，[攻击教程参考：ettercap详细使用教程](https://blog.csdn.net/smli_ng/article/details/106133685)。
+
+```
+ettercap -G 命令可以使用图形化界面
+```
 
 然后查看攻击机的IP和mac地址
 
@@ -64,4 +68,24 @@ sudo make install
 再查看受害者机器的IP和mac地址，发现mac地址已经是攻击机的mac地址了。
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210824112754.png)
+
+尝试抓包，在受害者主机上登录一个网页查看是否能够获取到数据。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210824130021.png)
+
+在ettercap图形化界面通过以下方式查看结果。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210824130434.png)
+
+可以看到我们输入的账号密码全部都能获取到。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210824125817.png)
+
+### 插件
+
+ettercap中还有很多插件，比如`dns_spoof`模块，这个模块可以控制受害者主机访问互联网上的地址。这些模块需要花时间去研究到底是什么样的攻击方式，以及能够得到什么样的结果。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210824124329.png)
+
+
 
