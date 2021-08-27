@@ -87,22 +87,3 @@ system(C:\test\target path\demo.exe)
 
 漏洞修复以前，`target.exe`能够被成功利用，且是添加管理员账户或者其他敏感操作，就会产生严重的后果。
 
-
-
-## Linux
-
-Linux中可以参考这篇文章，[Linux提权一文通](https://www.freebuf.com/articles/system/251884.html)。
-
-在Linux中，也会存在`错误权限配置`的问题，通过查找所有用户具有写权限文件的SUID/GUID所有者是root以及不正确的配置文件，从而发现权限提升漏洞。
-
-
-
-### 权限漏洞查找工具
-
-* [unix-privesc-check](https://github.com/pentestmonkey/unix-privesc-check)
-* [LinEnum](https://github.com/rebootuser/LinEnum)
-
-### 权限提升漏洞工具列表
-
-* [Unix-Privilege-Escalation-Exploits-Pack](https://github.com/Kabot/Unix-Privilege-Escalation-Exploits-Pack)
-
