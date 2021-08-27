@@ -1,6 +1,8 @@
 # XSS攻击
 
-**[XSS攻击参考链接](https://www.cnblogs.com/liuhuan086/p/14741974.html)**
+* **[XSS攻击参考链接](https://www.cnblogs.com/liuhuan086/p/14741974.html)**
+
+* **[XSS攻击总结参考链接](https://github.com/cyberspacekittens/XSS/blob/master/XSS2.png)**
 
 XSS攻击主要是针对用户进行攻击，产生的原因是网站应用程序输入验证存在缺陷，产生原因是服务端未对用户输入数据做过滤。
 
@@ -133,6 +135,16 @@ document.body.appendChild(img);
 
 
 ### 构造语句
+
+**注意**：并非所有JavaScript payload都需要打开和关闭`<script>`标签。有一些HTML事件属性在触发时执行[JavaScript](https://www.w3schools.com/tags/ref_eventattributes.asp)。这意味着任何专门针对 Script 标签的规则都是无效的。例如，下列这些执行 JavaScript 的 HTML 事件属性就不使用` <script>`标签：
+
+```
+<b onmouseover=alert('XSS')>Click Me!</b>
+<body onload="alert('XSS')">
+<img src="http://test.cyberspacekittens.com" onerror=alert(document.cookie);>
+```
+
+
 
 以下可以用来充当fuzz字典。
 
