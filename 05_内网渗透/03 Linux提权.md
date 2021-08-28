@@ -119,7 +119,7 @@ hacker@webper-virtual-machine:/tmp$ echo $PATH
 hacker@webper-virtual-machine:/tmp$ export PATH=.:$PATH
 ```
 
-再次查看添加当前环境变量，可以看到`/usr/local/sbin`多了一个`.`，也就是当前目录
+再次查看添加当前环境变量，可以看到`/usr/local/sbin`前面多了一个`.`，也就是当前目录
 
 ```
 hacker@webper-virtual-machine:/tmp$ echo $PATH
@@ -144,9 +144,21 @@ system("cat /etc/shadow");
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210828110946.png)
 
-并且切换了其他Ubuntu靶机也没有执行成功，好奇怪。通过仔细检查教程中的C源码发现，`cat`命令其实是`/bin/bash`命令，所以当然没有任何输出。小伙伴们，那你们觉得怎么改才能看到`/etc/shadow`中的内容呢？
+并且切换了其他Ubuntu靶机也没有执行成功，好奇怪。~~通过仔细检查教程中的C源码发现，`cat`命令其实是`/bin/bash`命令，所以当然没有任何输出。小伙伴们，那你们觉得怎么改才能看到`/etc/shadow`中的内容呢？~~
 
-现在我们已经提权成功，所以可以为所欲为了。
+经过向某大佬求助得知，通过修改环境变量，创建与`/bin、/sbin、 /usr/bin`等目录下同名的可执行文件名，是`环境变量劫持漏洞`，该漏洞出现得非常早，存在于Ubuntu早期的系统中，在后来的版本中该漏洞已被修复，已经无法在后来的版本中利用。
+
+大佬告诉我，即使这样，其实也能通过其他方式来利用，于是便尝试一下。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210828183323.png)
+
+果然成功了，上面成功利用该漏洞最核心的一条命令是做软链接，软链接就像Windows桌面上的快捷方式。
+
+```
+ln -s /bin/cat /tmp/cat
+```
+
+然后其他步骤不变，就能成功利用了。
 
 
 
@@ -224,3 +236,19 @@ Linux Kernel 3.13.0 < 3.19 (Ubuntu 12.04/14.04/14.10/15.04) - 'overlayfs' Local 
 ```
 
 而上面`uname -a`发现内核版本刚好是3.19，不在受影响版本的区间范围，应该是后面的版本将此漏洞进行了修复，所有这里复现失败。
+
+
+
+## 利用定时任务提权
+
+在Windows中有计划任务，在Linux中同样有定时任务，通过`/etc/crontab`来实现。
+
+crontab文件只有所属主是root才有权限查看和修改，如果我们通过某种方式进入到目标服务器中，可以检查crontab中存在哪些任务，是否可以像[Windows利用计划任务提权](https://github.com/liuhuan086/Sharpen/blob/main/05_%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/02%20Windows%E6%8F%90%E6%9D%83.md)一样，在Linux中通过计划任务来实现权限提升。
+
+查看计划任务命令：
+
+```
+crontab -l
+```
+
+和Windows一样，如果我们可以修改执行定时任务的文件，那么也能够进行权限提升以及其他的操作。
