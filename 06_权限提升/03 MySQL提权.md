@@ -8,10 +8,43 @@ MySQL的内置函数虽然丰富，但毕竟不能满足所有人的需要，有
 
 > 题外话：[phpadmin忘记密码后重置密码](https://m.php.cn/tool/phpmyadmin/441404.html)，重置之后使用`net start mysql`命令重启MySQL。
 
+
+
 # UDF的特性
 
 * 可以自定义函数功能
 * 可以自定义函数返回值
 
 
+
+# 相关语法
+
+**创建UDF**
+
+```sql
+CREATE FUNCTION function_name(parameter_nametype,[parameter_name type,...])
+RETURNS {STRING|INTEGER|REAL};
+```
+
+上面的意思是创建一个聚合或者是非聚合的函数，sql中调用的名称是function_name，返回类型是{STRING|INTEGER|REAL}其中的一种。
+
+```sql
+CREATE [AGGREGATE] FUNCTION function_name RETURNS {STRING|INTEGER|REAL} SONAME 'shared_library_name';
+```
+
+上面除了创建函数外，还生成动态链接库，shared_library_name是生成的动态链接库的名称。
+
+创建成功后会从MySQL服务器的mysql数据库的func表中找到对应的一条记录的添加。
+
+**查看UDF**
+
+```sql
+SHOW CREATE FUNCTION function_name;
+```
+
+**删除UDF**
+
+```sql
+DROP FUNCTION function_name;
+```
 
