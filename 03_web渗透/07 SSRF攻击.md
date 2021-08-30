@@ -60,9 +60,15 @@ php://：访问各个输入/输出流（I/O streams）
 
 ### 常见攻击行为
 
-* 系统识别
+* 在回环接口上访问服务
 
-* 扫描内网IP、端口
+* 使用`FILE://`等协议读取服务器上的本地文件
+
+* 使用 AWS Rest 接口（ http://bit.ly/2ELv5zZ ）
+
+* 横向移动到内部环境中
+
+* 扫描内部网络和与这些服务的潜在交互方式（GET/POST/HEAD）
 
   使用burpsuite的Intruder进行抓包并重放，通过**dict协议**对端口进行尝试，查看返回包的长度不同，可以猜解哪些端口是开放的。
 
@@ -78,5 +84,13 @@ php://：访问各个输入/输出流（I/O streams）
 
   当我们扫描出内网的端口和服务时，就能对对应的服务发起针对性攻击。
 
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210830180524.png)
 
+点击`Preview link`并抓包，通过抓包看到这里访问了我们填入的链接地址，那么，我们尝试填写回环地址，测试不同端口来看看，可以看到这里发现了28017端口的返回数据包长度和其他的不太相同，而28017是mongodb的端口。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210830181310.png)
+
+通过浏览器打开页面，发现我们已经能够进入mongdb到后台。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210830181954.png)
 
