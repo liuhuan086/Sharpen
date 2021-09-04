@@ -1,14 +1,14 @@
 # XSS攻击
 
-* **[XSS攻击参考链接](https://www.cnblogs.com/liuhuan086/p/14741974.html)**
-
-* **[XSS攻击总结参考链接](https://github.com/cyberspacekittens/XSS/blob/master/XSS2.png)**
-
 XSS的本质还是一种”HTML“漏洞。用户的数据被当成了HTML的一部分来执行，从而混淆了原有的语义，产生了新的语义。如果未对用户的输入做任何处理，那么会直接产生XSS攻击漏洞。
 
 XSS攻击主要是针对用户进行攻击，产生的原因是网站应用程序输入验证存在缺陷，产生原因是服务端未对用户输入数据做过滤。
 
+参考链接：
 
+* **[XSS攻击参考链接](https://www.cnblogs.com/liuhuan086/p/14741974.html)**
+* **[XSS攻击总结参考链接](https://github.com/cyberspacekittens/XSS/blob/master/XSS2.png)**
+* [**XSS Fuzz大法**](https://xssfuzzer.com/)
 
 ## 危害
 
@@ -24,6 +24,33 @@ XSS攻击主要是针对用户进行攻击，产生的原因是网站应用程�
 * 反射型：非持久型，需要欺骗用户自己去点击链接才能触发漏洞。
 * 存储型：持久型，攻击者把代码保存到数据库中，当用户访问存在漏洞的网页就会触发恶意代码。
 * DOM型：DOM—based XSS漏洞是基于文档对象模型（Document Objeet Model，DOM）的一种漏洞，DOM型是通过URL传入参数去控制触发的。
+
+
+
+## 防御
+
+### HhttpOnly
+
+什么是HhttpOnly？防止JS获取cookie信息，但是可能不会阻止其他XSS攻击。如果使用浏览器保存了账号密码，仍有可以操作的空间。
+
+- 保存密码：保存读取
+- 没有保存：表单劫持
+
+保存读取：XSS平台选项：获取浏览器保存的明文密码。
+
+表单劫持：一个数据包发送了两份，一份给服务器，一份给了抓包平台。
+
+绕过HhttpOnly：
+
+浏览器未保存账号密码，需要XSS产生登陆地址，利用表单劫持
+
+浏览器保存账号密码：产生在后台的XSS，存储型如浏览器等，读取账号密码
+
+
+
+**根本的解决方法：**
+
+从输入到输出都需要过滤、转义。
 
 
 
