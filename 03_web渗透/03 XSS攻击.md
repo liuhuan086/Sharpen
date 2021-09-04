@@ -4,6 +4,8 @@
 
 * **[XSS攻击总结参考链接](https://github.com/cyberspacekittens/XSS/blob/master/XSS2.png)**
 
+XSS的本质还是一种”HTML“漏洞。用户的数据被当成了HTML的一部分来执行，从而混淆了原有的语义，产生了新的语义。如果未对用户的输入做任何处理，那么会直接产生XSS攻击漏洞。
+
 XSS攻击主要是针对用户进行攻击，产生的原因是网站应用程序输入验证存在缺陷，产生原因是服务端未对用户输入数据做过滤。
 
 
@@ -230,7 +232,7 @@ a="get";b="URL";c="javascript.:";d="alert('XSS');";eval(a+b+c+d);
 
 
 
-## 手动示例
+## 手动演示
 
 ### 大小写
 
@@ -635,3 +637,43 @@ http://10.4.7.5/owaspbricks/content-2/index.php?user=harry%3Cscript%20src=http:/
 
 可以看到，XSS攻击所造成的危害是十分巨大的，如果对方构造的是一个存储型或蠕虫攻击，那么所造成的影响便会成指数级增长。
 
+
+
+## 漏洞可能存在点
+
+有可能导致XSS攻击的函数
+
+```
+.after()
+.append()
+.appendTo()
+.before()
+.html()
+.insertAfter()
+.insertBefore()
+.prepend()
+.prependTo()
+.replaceAll()
+.replaceWith()
+.unwrap()
+.wrap()
+.wrapAll()
+.wrapInner()
+.prepend()
+```
+
+其他输入来源
+
+```
+document.URL *
+document.location.pathname *
+document.location.href *
+document.location.search *
+document.location.hash
+document.referrer *
+window.name
+document.cookie
+window.location(href hash等)
+```
+
+以及所有input框，都是极有可能产生XSS攻击的点。
