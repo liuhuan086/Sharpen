@@ -30,8 +30,6 @@ XML把数据从HTML分离，XML是独立于软件和硬件的信息传输工具�
 
 `<message>hello < world</message>`，为了避免错误。我们用实体引用`&lt;`来代替`<`字符。XML中，有5个预定义的实体引用。
 
-
-
 ## DTD属性
 
 文档类型定义（DTD）可定义合法的XML文档构建模块。它使用一系列合法的元素来定义文档的结构。DTD可被成行地声明于XML文档中，也可作为一个外部引用。
@@ -57,8 +55,6 @@ XML实例：
 > [引用自：浅谈XML实体注入漏洞](https://www.freebuf.com/vuls/175451.html)
 
 也就是说，`Hu3sky=`的值如果可以由用户控制，那么可以像构造XSS攻击一样，构造出攻击代码。
-
-
 
 ### 示例一
 
@@ -173,7 +169,6 @@ XML实体又分为**内部实体**和**外部实体**，声明方式如下：
     <xxx>&xxe;</xxx>
     ```
 
-    
 
 # 有回显演示
 
@@ -299,8 +294,6 @@ data=%3C%3Fxml+version%3D%221.0%22+%3F%3E%3C%21DOCTYPE+thp+%5B+%3C%21ELEMENT+thp
 
 别想了，也不会有什么结果的。
 
-
-
 # 无回显演示
 
 无回显XXE又称为blind xxe，可以使用外带数据通道提取数据。
@@ -333,8 +326,6 @@ data=%3C%3Fxml+version%3D%221.0%22+%3F%3E%3C%21DOCTYPE+thp+%5B+%3C%21ELEMENT+thp
 ```php
 <?php file_put_contents("1.txt", $_GET['file']); ?>
 ```
-
-
 
 ## 高级 XXE——XXE-OOB
 

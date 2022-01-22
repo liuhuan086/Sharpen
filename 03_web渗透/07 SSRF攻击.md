@@ -8,21 +8,15 @@
 
 SSRF 形成的原因大都是由于服务端提供了从其他服务器应用获取数据的功能且没有对目标地址做过滤与限制。比如从指定URL地址获取网页文本内容，加载指定地址的图片，下载等等。
 
-
-
 ## 漏洞挖掘
 
 - 数据层面需要关注的关键字段是URL、IP地址、链接等，关键字有：share、wap、url、link、src、source、target、u、3g、display、sourceURl、imageURL、domain……
 - 业务层面需关注任何通过URL进行资源调用（入）或向外发起网络请求（出）的功能，如通过url文件上传下载处是存在SSRF最多的场景。其他具体业务场景包括：内容展示、社交分享、在线翻译、收藏功能、WebMail邮箱、各种处理工具（FFpmg）等
 
-
-
 ## 漏洞探测
 
 - 请求包中将参数更改为不同的IP/DNS或TCP端口，观察返回包长度、返回码、返回信息及响应时间，不同则可能存在SSRF漏洞；
 - 请求自己的公网服务器（或CEYE），使用nc –lvp监听请求。
-
-
 
 ## 漏洞利用
 
@@ -43,8 +37,6 @@ SSRF 形成的原因大都是由于服务端提供了从其他服务器应用获
 访问一个存在加载远程URL漏洞的页面。
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/huan20210824084456.png)
-
-
 
 ### 常用协议
 
@@ -93,8 +85,6 @@ php://：访问各个输入/输出流（I/O streams）
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210830181954.png)
 
 > 参考链接：[SSRF漏洞(原理&绕过姿势)](https://www.t00ls.net/articles-41070.html)
-
-
 
 ## 思维导图
 

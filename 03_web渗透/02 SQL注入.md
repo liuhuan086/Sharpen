@@ -20,8 +20,6 @@
 
 根据不同数据库服务器，注入语句也有所不同。
 
-
-
 ## SQL Server
 
 WAITFOR是SQL Server中Transact-SQL提供的一个流程控制语句。它的作用就是等待特定时间后，继续执行后续语句。它包含一个参数DELAY，用来指定等待的时间。
@@ -53,8 +51,6 @@ Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64)
 	Developer Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)
 ```
 
-
-
 ### SQL注入常用函数
 
 #### SUBSTRING
@@ -76,7 +72,6 @@ SELECT name
 FROM sys.databases
 where database_id = 1
 IF (SUBSTRING(DB_NAME(), 1, 1) = 'm') WAITFOR delay '0:0:3';
-
 
 SELECT name
 FROM sys.databases
@@ -110,13 +105,9 @@ WAITFOR DELAY '0:0:3';
 
 id为2的值参考上图中的结果。
 
-
-
 ### 位移注入
 
-这种注入方式适合在找到表但是找不到字段的情况下使用。
-
-这种注入方式需要联合两张表，所以该注入方式也是联合查询的一种。
+这种注入方式适合在找到表但是找不到字段的情况下使用。这种注入方式需要联合两张表，所以该注入方式也是联合查询的一种。
 
 #### 原理
 
@@ -130,8 +121,6 @@ SELECT * FROM sys.databases;
 
 `*`在这里表示返回所有字段的所有值。
 
-
-
 ### 回显注入
 
 #### DNS无回显注入
@@ -143,8 +132,6 @@ DNS在解析的时候会留下日志，利用这个属性，可以读取多级�
 一般使用**布尔型**和延时型盲注判断是否存在注入点，但是这两种查询都很慢，dnslog查询因为是直接显示数据，所以通过dnslog查询的方式来判断注入点，效率高很多。
 
 [**ceye.io**](http://ceye.io)是免费的dnslog注入平台，提供很多相关payload。
-
-
 
 ## MySQL
 
@@ -393,8 +380,6 @@ select pwd, user from user where pwd='test' and user='admin' union select * from
 
 还有其他更多的思路，比如有些情况需要填写用户其他信息，比如手机号、邮箱号等，这些都可以成为潜在的注入点，这也验证了行业内经典语录：**一切用户输入都不可靠。**
 
-
-
 ### DNSLOG带外注入
 
 工具：https://github.com/ADOOO/DnslogSqlinj
@@ -419,13 +404,9 @@ select * from users where id='1'; insert into users (name, pwd) values ('test', 
 
 以上只是堆叠注入的应用场景之一，还有很多其他用处，按实际情况进行操作。
 
-
-
 ## JSON注入
 
 json注入同sql注入，在参数输入点可以用上面的SQL注入思路来进行渗透。
-
-
 
 ## 防御
 
@@ -433,8 +414,6 @@ json注入同sql注入，在参数输入点可以用上面的SQL注入思路来�
 * 关键字过滤：union、select等，或者将特定关键字使用replace进行替换等。
 * WAF防护：大部分都是绕过和过滤关键字，可能存在一些关键字字典或者规则或语句等，一旦触发则注入失败。
 * 需要结合实际情况进行注入以及防护。
-
-
 
 ## 参考链接
 
