@@ -8,13 +8,9 @@ SSH隧道有三种端口转发模式：
 * 远程端口转发（Remote Port Forwarding）
 * 动态端口转发（Dynamic Port Forwarding）
 
-
-
 ## 原理
 
 ssh在登录时，可以指定一些参数，来实现一些操作，详见[ssh参数详解](https://github.com/liuhuan086/Sharpen/blob/main/04_%E7%90%86%E8%AE%BA%E7%9F%A5%E8%AF%86/02%20SSH%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0.md)。
-
-
 
 ## 安全风险
 
@@ -27,8 +23,6 @@ ssh在登录时，可以指定一些参数，来实现一些操作，详见[ssh�
 ```
 
 其中B可以访问A和C，A和C互相不能访问，B对外提供Web服务，这时候，我们可以通过ssh隧道进行端口转发，利用B主机作为跳板机，访问A主机或C主机，这样便能利用B主机实现内网渗透。
-
-
 
 ## 演示
 

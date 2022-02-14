@@ -2,8 +2,6 @@
 
 ## 安装
 
-> 吐槽一刻：github拉不下来源码，难受！
-
 该工具安装在kali系统下。
 
 ```bash
@@ -48,8 +46,6 @@ sudo beef-xss
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210820173842.png)
 
 ![](https://borinboy.oss-cn-shanghai.aliyuncs.com/xntz/20210820174337.png)
-
-
 
 ## 使用示例
 

@@ -2,8 +2,6 @@
 
 `sqlmap -hh`可以用来查看详细参数列表。
 
-
-
 ## 一些技巧
 
 * 需要定义攻击什么类型的数据库，如果认为存在注入点，而SQLMap却没有找到，就试着设置`--dbms=[database type]`参数。
@@ -41,8 +39,6 @@
     
     sqlmap is running, please wait..
     ```
-
-
 
 ## POST参数示例
 
